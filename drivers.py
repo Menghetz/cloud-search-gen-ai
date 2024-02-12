@@ -1,7 +1,7 @@
 # Importing required libraries
 
 import requests
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from langchain.embeddings import VertexAIEmbeddings
 from google.cloud import aiplatform
 import time
@@ -19,6 +19,7 @@ import sys
 import random
 import math
 from overrides import CustomSitemapLoader
+
 
 # Constants for retrying and backoff
 NUM_RETRIES = 10
@@ -123,8 +124,16 @@ def refresh_embeddings(main_url, max_items_percentage):
     embeddings = VertexAIEmbeddings()
     
     # Split documents into chunks for indexing
-    text_splitter = CharacterTextSplitter(
-        chunk_size=500, chunk_overlap=0, separator="\n\n",)
+    CharacterTextSplitter()
+    text_splitter =     RecursiveCharacterTextSplitter(
+    # Set a really small chunk size, just to show.
+        chunk_size=500,
+        chunk_overlap=0,
+        length_function=len,
+        # is_separator_regex=False,
+    )
+    # CharacterTextSplitter(
+    #     chunk_size=500, chunk_overlap=0, separator="\n\n",separators=[" ", ",", "\n"])
     chunked_docs = text_splitter.split_documents(documents)
     
     try:
@@ -228,7 +237,7 @@ def run_chain(query, matches):
     return answer
 
 
-def main():
+async def main():
     # Streamlit app title and expander for defining or updating the knowledge base
     input_url = st.sidebar.text_input("Enter the Sitemap URL of the knowledge base")
     st.title("Custom Search Engine")

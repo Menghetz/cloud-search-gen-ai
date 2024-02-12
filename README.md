@@ -49,11 +49,11 @@ This function takes the user's query and the DataFrame containing matching docum
 ## Deployment
 
 ### - Generate an image and store in GCP's Container Registry 
-`gcloud builds submit --tag gcr.io/<project>/<image-name>`
+`gcloud builds submit --tag gcr.io/amazon-tracker-264915/custom-web-genai-search`
 Refer to the DockerFile for any specific settings you may want to modify
 
 ### - Deploy the image to a Cloud Run service in port 8501
-`gcloud run deploy <service name> --image gcr.io/<project>/<image-name> --region <region> --platform managed --allow-unauthenticated --quiet --port 8501`
+`gcloud run deploy cloud-search-api --image gcr.io/amazon-tracker-264915/custom-web-genai-search --region us-central1 --platform managed --allow-unauthenticated --quiet --port 8501 --memory 2048M`
 
 ### - Create an HTTPS Load Balancer
 

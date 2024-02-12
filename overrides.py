@@ -9,6 +9,7 @@ import asyncio
 from typing import Any, Dict, List, Optional, Union
 import random
 import math
+from concurrent.futures import ThreadPoolExecutor
 
 class CustomSitemapLoader(SitemapLoader):
     
@@ -99,8 +100,23 @@ class CustomSitemapLoader(SitemapLoader):
             else:
                 els = elblocks[self.blocknum]
 
-        results = self.scrape_all([el["loc"].strip() for el in els if "loc" in el])
-
+        try:
+            # Raises RuntimeError if there is no current event loop.
+            asyncio.get_running_loop()
+            # If there is a current event loop, we need to run the async code
+            # in a separate loop, in a separate thread.
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                future = executor.submit(loop.run_until_complete, self.scrape_all([el["loc"].strip() for el in els if "loc" in el]))
+                results = future.result()
+        except RuntimeError:
+            results = asyncio.run(self.scrape_all([el["loc"].strip() for el in els if "loc" in el]))
+            # with ThreadPoolExecutor(max_workers=1) as executor:
+            #     loop = asyncio.new_event_loop()
+            #     asyncio.set_event_loop(loop)
+            #     future = executor.submit(loop.run_until_complete, self.scrape_all([el["loc"].strip() for el in els if "loc" in el]))
+            #     results = future.result()
         return [
             Document(
                 page_content=self.parsing_function(results[i]),
@@ -108,4 +124,3 @@ class CustomSitemapLoader(SitemapLoader):
             )
             for i in range(len(results))
         ]
-

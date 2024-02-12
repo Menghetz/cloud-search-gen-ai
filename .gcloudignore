@@ -21,3 +21,6 @@ webdata/
 venv/
 index/
 .vscode/
+
+test.py
+test_sitemap.py
