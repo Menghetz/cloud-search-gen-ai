@@ -66,7 +66,7 @@ def get_base_url(url):
 # Caching decorator to optimize web crawling process
 
 
-@st.cache_data(ttl=86400, show_spinner="Parsing the website...")
+@st.cache_resource(ttl=86400, show_spinner="Parsing the website...")
 def get_docs(url, max_items_percentage):
     # Variables to track if all URLs are parsed
     all_urls_parsed = False
@@ -237,7 +237,7 @@ def run_chain(query, matches):
     return answer
 
 
-async def main():
+def main():
     # Streamlit app title and expander for defining or updating the knowledge base
     input_url = st.sidebar.text_input("Enter the Sitemap URL of the knowledge base")
     st.title("Custom Search Engine")
